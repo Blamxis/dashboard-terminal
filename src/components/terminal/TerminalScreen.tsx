@@ -1,8 +1,23 @@
-export default function TerminalScreen() {
+"use client";
+
+import { useEffect, useRef } from "react";
+import type { TerminalLine } from "./Terminal";
+
+export default function TerminalScreen({ history }: { history: TerminalLine[] }) {
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    ref.current?.scrollTo(0, ref.current.scrollHeight);
+  }, [history]);
+
   return (
-    <div className="h-100 overflow-y-auto p-4 text-green-400 text-sm">
-      <p>Bienvenue dans le Dashboard Terminal.</p>
-      <p>Tapez <span className="text-green-300">help</span> pour voir les commandes disponibles.</p>
+    <div
+      ref={ref}
+      className="h-100 overflow-y-auto p-4 text-green-400 text-sm space-y-1"
+    >
+      {history.map((line) => (
+        <p key={line.id}>{line.content}</p>
+      ))}
     </div>
   );
 }
