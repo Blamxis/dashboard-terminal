@@ -6,6 +6,11 @@ import TerminalScreen from "./TerminalScreen";
 import TerminalInput from "./TerminalInput";
 import runCommand from "./commands";
 
+import { runTypewriterEffect } from "../effects/Typewriter";
+import { runLoadingEffect } from "../effects/Loading";
+import { runGlitchEffect } from "../effects/Glitch";
+import { runMatrixEffect } from "../effects/Matrix";
+
 export type TerminalLine = {
   id: number;
   type: "input" | "output" | "system" | "animation";
@@ -23,15 +28,13 @@ export default function Terminal() {
   ]);
 
   const [username, setUsername] = useState("Invité");
-
-  // 🔥 Nouveau : répertoire courant
   const [currentPath, setCurrentPath] = useState<string[]>(["home", "Maxime"]);
 
   const appendLine = (line: Omit<TerminalLine, "id">) => {
     setHistory((prev) => [...prev, { ...line, id: prev.length + 1 }]);
   };
 
-  // 🔥 Animation du scan
+  // --- SCAN ANIMATION ---
   const runScanAnimation = async () => {
     const steps = [
       "[ SCAN INITIALISÉ ]",
@@ -43,12 +46,47 @@ export default function Terminal() {
       "Scan terminé : aucune menace détectée.",
     ];
 
-    for (let i = 0; i < steps.length; i++) {
+    for (const step of steps) {
+      appendLine({ type: "output", content: step });
       await new Promise((resolve) => setTimeout(resolve, 300));
-      appendLine({
-        type: "output",
-        content: steps[i],
-      });
+    }
+  };
+
+  // --- ANIMATION DISPATCHER ---
+  const runAnimation = async (content: string) => {
+    if (content.startsWith("typing:")) {
+      const text = content.replace("typing:", "");
+      await runTypewriterEffect(text, (line) =>
+        appendLine({ type: "output", content: line.content })
+      );
+      return;
+    }
+
+    if (content === "loading") {
+      await runLoadingEffect((line) =>
+        appendLine({ type: "output", content: line.content })
+      );
+      return;
+    }
+
+    if (content.startsWith("glitch:")) {
+      const text = content.replace("glitch:", "");
+      await runGlitchEffect(text, (line) =>
+        appendLine({ type: "output", content: line.content })
+      );
+      return;
+    }
+
+    if (content === "matrix") {
+      await runMatrixEffect((line) =>
+        appendLine({ type: "output", content: line.content })
+      );
+      return;
+    }
+
+    if (content === "scan") {
+      await runScanAnimation();
+      return;
     }
   };
 
@@ -69,7 +107,6 @@ export default function Terminal() {
     });
 
     results.forEach((line) => {
-      // CLEAR
       if (line.content === "__clear__") {
         setHistory([]);
         appendLine({
@@ -79,13 +116,11 @@ export default function Terminal() {
         return;
       }
 
-      // ANIMATION
-      if (line.type === "animation" && line.content === "scan") {
-        runScanAnimation();
+      if (line.type === "animation") {
+        runAnimation(line.content);
         return;
       }
 
-      // Lignes normales
       appendLine({
         type: line.type,
         content: line.content,

@@ -26,6 +26,11 @@ import ls from "./ls";
 import cd from "./cd";
 import tree from "./tree";
 
+import typing from "./typing";
+import loading from "./loading";
+import glitch from "./glitch";
+import matrix from "./matrix";
+
 export type CommandContext = {
   username: string;
   setUsername: (name: string) => void;
@@ -66,6 +71,11 @@ export const commands: Record<string, CommandDefinition> = {
   ls: { description: "Liste les fichiers", handler: ls },
   cd: { description: "Change de dossier", handler: cd },
   tree: { description: "Affiche l'arborescence", handler: tree },
+
+  typing: { description: "Effet machine à écrire", handler: typing },
+  loading: { description: "Barre de chargement animée", handler: loading },
+  glitch: { description: "Effet glitch cyber", handler: glitch },
+  matrix: { description: "Pluie de code Matrix", handler: matrix },
 };
 
 export default function runCommand(input: string, ctx: CommandContext): TerminalLine[] {
