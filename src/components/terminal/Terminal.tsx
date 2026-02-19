@@ -4,6 +4,7 @@ import { useState } from "react";
 import TerminalHeader from "./TerminalHeader";
 import TerminalScreen from "./TerminalScreen";
 import TerminalInput from "./TerminalInput";
+import runCommand from "./commands";
 
 export type TerminalLine = {
   id: number;
@@ -21,6 +22,8 @@ export default function Terminal() {
     },
   ]);
 
+  const [username, setUsername] = useState("Invité");
+
   const appendLine = (line: Omit<TerminalLine, "id">) => {
     setHistory((prev) => [...prev, { ...line, id: prev.length + 1 }]);
   };
@@ -31,58 +34,37 @@ export default function Terminal() {
 
     appendLine({
       type: "input",
-      content: `user@terminal ~$ ${trimmed}`,
+      content: `${username}@terminal ~$ ${trimmed}`,
     });
 
-    switch (trimmed) {
-      case "help":
-        appendLine({
-          type: "output",
-          content: "Commandes disponibles: help, clear, whoami, about",
-        });
-        break;
+    const results = runCommand(trimmed, { username, setUsername });
 
-      case "whoami":
-        appendLine({
-          type: "output",
-          content: "Utilisateur: Maxime — créateur du Dashboard Terminal.",
-        });
-        break;
-
-      case "about":
-        appendLine({
-          type: "output",
-          content:
-            "Dashboard Terminal v1.0 — interface terminal premium en Next.js + Tailwind.",
-        });
-        break;
-
-      case "clear":
+    results.forEach((line) => {
+      if (line.content === "__clear__") {
         setHistory([]);
         appendLine({
           type: "system",
           content: "Terminal nettoyé. Tapez `help` pour voir les commandes.",
         });
-        break;
+        return;
+      }
 
-      default:
-        appendLine({
-          type: "output",
-          content: `Commande inconnue: ${trimmed}. Tapez \`help\` pour voir les commandes.`,
-        });
-        break;
-    }
+      appendLine({
+        type: line.type,
+        content: line.content,
+      });
+    });
   };
 
   return (
     <div
       className="
-      max-w-4xl mx-auto mt-10
-      bg-black/80 border border-green-500/40 rounded-lg
-      shadow-[0_0_25px_rgba(34,197,94,0.35)]
-      backdrop-blur-sm
-      overflow-hidden
-    "
+        max-w-4xl mx-auto mt-10
+        bg-black/80 border border-green-500/40 rounded-lg
+        shadow-[0_0_25px_rgba(34,197,94,0.35)]
+        backdrop-blur-sm
+        overflow-hidden
+      "
     >
       <TerminalHeader />
       <TerminalScreen history={history} />

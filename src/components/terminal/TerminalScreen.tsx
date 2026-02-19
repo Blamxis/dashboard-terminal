@@ -16,7 +16,9 @@ export default function TerminalScreen({ history }: { history: TerminalLine[] })
       className="h-100 overflow-y-auto p-4 text-green-400 text-sm space-y-1"
     >
       {history.map((line) => (
-        <p key={line.id}>{line.content}</p>
+        <pre key={line.id} className="whitespace-pre-wrap">
+          {line.content}
+        </pre>
       ))}
     </div>
   );
