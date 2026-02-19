@@ -8,7 +8,7 @@ import runCommand from "./commands";
 
 export type TerminalLine = {
   id: number;
-  type: "input" | "output" | "system";
+  type: "input" | "output" | "system" | "animation";
   content: string;
 };
 
@@ -40,6 +40,7 @@ export default function Terminal() {
     const results = runCommand(trimmed, { username, setUsername });
 
     results.forEach((line) => {
+      // CLEAR
       if (line.content === "__clear__") {
         setHistory([]);
         appendLine({
@@ -49,11 +50,38 @@ export default function Terminal() {
         return;
       }
 
+      // ANIMATION
+      if (line.type === "animation" && line.content === "scan") {
+        runScanAnimation();
+        return;
+      }
+
+      // Lignes normales
       appendLine({
         type: line.type,
         content: line.content,
       });
     });
+  };
+
+  const runScanAnimation = async () => {
+    const steps = [
+      "[ SCAN INITIALISÉ ]",
+      "[##................] 10%",
+      "[#####.............] 25%",
+      "[##########........] 45%",
+      "[##############....] 70%",
+      "[##################] 100%",
+      "Scan terminé : aucune menace détectée.",
+    ];
+
+    for (let i = 0; i < steps.length; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      appendLine({
+        type: "output",
+        content: steps[i],
+      });
+    }
   };
 
   return (
