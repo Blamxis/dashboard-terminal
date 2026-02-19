@@ -2,9 +2,9 @@
 
 import { useState, useRef, useEffect } from "react";
 
-export default function TerminalInput() {
+export default function TerminalInput({ onSubmitCommand }: { onSubmitCommand: (cmd: string) => void }) {
   const [value, setValue] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -31,6 +31,12 @@ export default function TerminalInput() {
         className="absolute opacity-0 pointer-events-none"
         value={value}
         onChange={(e) => setValue(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            onSubmitCommand(value);
+            setValue("");
+          }
+        }}
       />
     </div>
   );
