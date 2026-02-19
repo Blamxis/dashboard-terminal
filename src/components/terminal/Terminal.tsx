@@ -24,8 +24,32 @@ export default function Terminal() {
 
   const [username, setUsername] = useState("Invité");
 
+  // 🔥 Nouveau : répertoire courant
+  const [currentPath, setCurrentPath] = useState<string[]>(["home", "Maxime"]);
+
   const appendLine = (line: Omit<TerminalLine, "id">) => {
     setHistory((prev) => [...prev, { ...line, id: prev.length + 1 }]);
+  };
+
+  // 🔥 Animation du scan
+  const runScanAnimation = async () => {
+    const steps = [
+      "[ SCAN INITIALISÉ ]",
+      "[##................] 10%",
+      "[#####.............] 25%",
+      "[##########........] 45%",
+      "[##############....] 70%",
+      "[##################] 100%",
+      "Scan terminé : aucune menace détectée.",
+    ];
+
+    for (let i = 0; i < steps.length; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      appendLine({
+        type: "output",
+        content: steps[i],
+      });
+    }
   };
 
   const handleCommand = (command: string) => {
@@ -34,10 +58,15 @@ export default function Terminal() {
 
     appendLine({
       type: "input",
-      content: `${username}@terminal ~$ ${trimmed}`,
+      content: `${username}@terminal:/${currentPath.join("/")} $ ${trimmed}`,
     });
 
-    const results = runCommand(trimmed, { username, setUsername });
+    const results = runCommand(trimmed, {
+      username,
+      setUsername,
+      currentPath,
+      setCurrentPath,
+    });
 
     results.forEach((line) => {
       // CLEAR
@@ -62,26 +91,6 @@ export default function Terminal() {
         content: line.content,
       });
     });
-  };
-
-  const runScanAnimation = async () => {
-    const steps = [
-      "[ SCAN INITIALISÉ ]",
-      "[##................] 10%",
-      "[#####.............] 25%",
-      "[##########........] 45%",
-      "[##############....] 70%",
-      "[##################] 100%",
-      "Scan terminé : aucune menace détectée.",
-    ];
-
-    for (let i = 0; i < steps.length; i++) {
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      appendLine({
-        type: "output",
-        content: steps[i],
-      });
-    }
   };
 
   return (

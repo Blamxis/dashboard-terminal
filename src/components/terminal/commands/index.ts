@@ -21,16 +21,19 @@ import projects from "./projects";
 import history from "./history";
 import scan from "./scan";
 
+import pwd from "./pwd";
+import ls from "./ls";
+import cd from "./cd";
+import tree from "./tree";
 
 export type CommandContext = {
   username: string;
   setUsername: (name: string) => void;
+  currentPath: string[];
+  setCurrentPath: (path: string[]) => void;
 };
 
-export type CommandHandler = (
-  args: string[],
-  ctx: CommandContext,
-) => TerminalLine[];
+export type CommandHandler = (args: string[], ctx: CommandContext) => TerminalLine[];
 
 export type CommandDefinition = {
   description: string;
@@ -38,35 +41,34 @@ export type CommandDefinition = {
 };
 
 export const commands: Record<string, CommandDefinition> = {
-  help: {
-    description: "Affiche la liste des commandes disponibles",
-    handler: help,
-  },
+  help: { description: "Affiche la liste des commandes", handler: help },
   clear: { description: "Nettoie le terminal", handler: clear },
   whoami: { description: "Affiche l'utilisateur actuel", handler: whoami },
-  about: { description: "À propos du Dashboard Terminal", handler: about },
-  ping: { description: "Répond 'pong'", handler: ping },
-  echo: { description: "Répète le texte fourni", handler: echo },
-  date: { description: "Affiche la date actuelle", handler: date },
-  time: { description: "Affiche l'heure actuelle", handler: time },
-  version: { description: "Affiche la version du terminal", handler: version },
-  random: { description: "Nombre aléatoire entre 0 et 99", handler: random },
-  roll: { description: "Lance un dé (1–6)", handler: roll },
+  about: { description: "À propos du terminal", handler: about },
+  ping: { description: "Répond pong", handler: ping },
+  echo: { description: "Répète le texte", handler: echo },
+  date: { description: "Affiche la date", handler: date },
+  time: { description: "Affiche l'heure", handler: time },
+  version: { description: "Version du terminal", handler: version },
+  random: { description: "Nombre aléatoire", handler: random },
+  roll: { description: "Lance un dé", handler: roll },
   flip: { description: "Pile ou face", handler: flip },
-  banner: { description: "Affiche un ASCII art stylé", handler: banner },
-  login: { description: "Changer l'utilisateur courant", handler: login },
-  logout: { description: "Revenir à l'utilisateur Invité", handler: logout },
-  neofetch: { description: "Affiche infos système stylées", handler: neofetch },
-  sysinfo: { description: "Infos techniques du navigateur", handler: sysinfo },
+  banner: { description: "ASCII art stylé", handler: banner },
+  login: { description: "Changer d'utilisateur", handler: login },
+  logout: { description: "Déconnexion", handler: logout },
+  neofetch: { description: "Infos système stylées", handler: neofetch },
+  sysinfo: { description: "Infos navigateur", handler: sysinfo },
   projects: { description: "Liste des projets", handler: projects },
-  history: { description: "Affiche l’historique (WIP)", handler: history },
-  scan: { description: "Effectue un scan cyber animé", handler: scan },
+  history: { description: "Historique (WIP)", handler: history },
+  scan: { description: "Scan cyber animé", handler: scan },
+
+  pwd: { description: "Affiche le répertoire courant", handler: pwd },
+  ls: { description: "Liste les fichiers", handler: ls },
+  cd: { description: "Change de dossier", handler: cd },
+  tree: { description: "Affiche l'arborescence", handler: tree },
 };
 
-export default function runCommand(
-  input: string,
-  ctx: CommandContext,
-): TerminalLine[] {
+export default function runCommand(input: string, ctx: CommandContext): TerminalLine[] {
   const [cmd, ...args] = input.trim().split(" ");
 
   const entry = commands[cmd];
@@ -76,7 +78,7 @@ export default function runCommand(
       {
         id: 0,
         type: "output",
-        content: `Commande inconnue: ${cmd}. Tapez "help" pour la liste.`,
+        content: `Commande inconnue: ${cmd}. Tapez "help".`,
       },
     ];
   }
