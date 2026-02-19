@@ -1,0 +1,46 @@
+/* Tailwind v4 layers */
+@import "tailwindcss";
+
+/* ====== Styles globaux ====== */
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Curseur clignotant */
+.cursor {
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Effet glitch léger */
+.glitch {
+  position: relative;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.glitch::before {
+  color: #22c55e;
+  transform: translate(2px, -2px);
+}
+
+.glitch::after {
+  color: #16a34a;
+  transform: translate(-2px, 2px);
+}
