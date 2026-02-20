@@ -71,7 +71,7 @@ Chaque effet est isolé dans `/effects` et géré via un **dispatcher d’animat
 
 ## 📁 Structure du projet
 
-Voici **ta structure réelle**, conforme à ton repo :
+Voici **la structure réelle du projet** :
 
 ```bash
 src/
